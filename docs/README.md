@@ -10,31 +10,7 @@ This project demonstrates an end-to-end, automated data engineering pipeline usi
 
 The architecture follows the classic Medallion Architecture across **Bronze**, **Silver**, and **Gold** layers:
 
-```
-[ Frankfurter API ]
-        │
-        ▼ (Extraction & Raw JSON Storage)
-┌────────────────────────────────────────────────────────┐
-│ BRONZE LAYER: Supabase Storage Bucket                  │
-└──────────────────────────┬─────────────────────────────┘
-                           │
-                           ▼ (Flattening, Normalization & Upserts)
-┌────────────────────────────────────────────────────────┐
-│ SILVER LAYER: Supabase PostgreSQL                      │
-│ - Primary Key & Foreign Key Constraints                │
-│ - Idempotent ON CONFLICT Logic                         │
-│ - Operational Control Plane (`pipeline_logs`)          │
-└──────────────────────────┬─────────────────────────────┘
-                           │
-                           ▼ (Business Reporting & Dynamic Aggregations)
-┌────────────────────────────────────────────────────────┐
-│ GOLD LAYER: Analytical Views                           │
-│ - `gold_daily_rate_changes`                            │
-│ - `gold_monthly_currency_summary`                      │
-│ - `gold_cross_rates_php`                               │
-└────────────────────────────────────────────────────────┘
-
-```
+![Data Architecture](docs/bsp-pipeline_data-architecture.png)
 
 1. **Bronze Layer**: Raw exchange rate JSON payloads extracted from the Frankfurter REST API and archived as immutable objects in Supabase Storage.
 2. **Silver Layer**: Data transformation pipeline that parses, normalizes, and deduplicates raw records into relational PostgreSQL tables (`silver_rates` and `dim_currencies`) using idempotent `ON CONFLICT` upserts.
