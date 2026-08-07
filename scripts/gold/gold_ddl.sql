@@ -81,3 +81,20 @@ SELECT
 FROM silver_rates s
 JOIN php_rates p ON s.rate_date = p.rate_date
 WHERE s.target_currency != 'PHP';
+
+
+
+-- -----------------------------------------------------------------------------
+-- 4. Average Exchange Rate Every Year PHP (Philippine Peso)
+-- Averages the exchange rate of PHP every year
+-- -----------------------------------------------------------------------------
+CREATE OR REPLACE VIEW gold_avg_exchange_rate_per_year AS 
+
+  SELECT DATE_PART('year', rate_date) as Year,
+  target_currency, 
+  ROUND(AVG(exchange_rate),2) AS avg_exchange_rate_eur
+  FROM silver_rates
+  GROUP BY DATE_PART('year', rate_date), target_currency
+
+
+  select * FROM gold_avg_exchange_rate_per_year
