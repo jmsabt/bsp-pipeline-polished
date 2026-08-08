@@ -98,3 +98,57 @@ CREATE OR REPLACE VIEW gold_avg_exchange_rate_per_year AS
 
 
   select * FROM gold_avg_exchange_rate_per_year
+
+
+-- -----------------------------------------------------------------------------
+-- 5. Daily Exchange Rate PHP with indicators (Philippine Peso)
+-- Shows exchange rate of PHP compared monthly
+-- -----------------------------------------------------------------------------
+
+  CREATE OR REPLACE VIEW gold_daily_exchange_rate_php AS
+  WITH daily_trends AS (
+      SELECT 
+          rate_date,
+          target_currency,
+          exchange_rate,
+          -- Calculate previous rate for percentage change
+          LAG(exchange_rate, 1) OVER (
+              PARTITION BY target_currency 
+              ORDER BY rate_date ASC
+          ) AS prev_rate,
+          -- Window min/max for monthly flags
+          MAX(exchange_rate) OVER (
+              PARTITION BY target_currency, DATE_TRUNC('month', rate_date)
+          ) AS monthly_max,
+          MIN(exchange_rate) OVER (
+              PARTITION BY target_currency, DATE_TRUNC('month', rate_date)
+          ) AS monthly_min
+      FROM silver_rates
+  )
+  SELECT 
+      rate_date,
+      target_currency,
+      exchange_rate,
+
+      -- 1. Numeric Column: Pure double/numeric percentage change
+      ROUND(
+          ((exchange_rate - prev_rate) / NULLIF(prev_rate, 0)) * 100, 
+          2
+      ) AS pct_change,
+
+      -- 2. Text Column: Pure monthly status flag
+      CASE 
+          WHEN exchange_rate = monthly_max THEN 'Monthly High'
+          WHEN exchange_rate = monthly_min THEN 'Monthly Low'
+          ELSE 'Normal'
+      END AS monthly_flag,
+
+      -- 3. Text Column: Pure daily trend direction flag
+      CASE 
+          WHEN exchange_rate > prev_rate THEN 'Rising'
+          WHEN exchange_rate < prev_rate THEN 'Falling'
+          ELSE 'Flat'
+      END AS daily_trend
+  FROM daily_trends
+  WHERE target_currency = 'PHP'
+  ORDER BY rate_date DESC;
