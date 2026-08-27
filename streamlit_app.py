@@ -4,11 +4,12 @@ import streamlit as st
 from datetime import date, timedelta
 from supabase import create_client
 from dotenv import load_dotenv
+import streamlit as st
 
 load_dotenv()
 
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_SECRET_KEY")
+SUPABASE_URL = os.getenv("SUPABASE_URL") or st.secrets.get("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_SECRET_KEY") or st.secrets.get("SUPABASE_SECRET_KEY")
 
 if not SUPABASE_URL or not SUPABASE_KEY:
     st.error("Missing Supabase configuration. Check environment variables.")
