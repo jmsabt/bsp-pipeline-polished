@@ -17,7 +17,46 @@ if not SUPABASE_URL or not SUPABASE_KEY:
 client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 st.set_page_config(page_title="USD/PHP Direction Forecast", layout="centered")
+st.markdown("""
+    <style>
+    .stMetric {
+        background-color: #1A1D23;
+        border: 1px solid #2A2E37;
+        border-radius: 10px;
+        padding: 16px;
+    }
+    .stMetric label {
+        color: #A0A4AB !important;
+    }
+    [data-testid="stMetricValue"] {
+        color: #FFC20E;
+    }
+    div[data-testid="stDataFrame"] {
+        border: 1px solid #2A2E37;
+        border-radius: 10px;
+    }
+    hr {
+        border-color: #2A2E37;
+    }
 
+    @media (max-width: 640px) {
+        .block-container {
+            padding-left: 1rem;
+            padding-right: 1rem;
+            padding-top: 2rem;
+        }
+        h1 {
+            font-size: 1.5rem !important;
+        }
+        h3 {
+            font-size: 1.1rem !important;
+        }
+        [data-testid="stMetricValue"] {
+            font-size: 1.4rem !important;
+        }
+    }
+    </style>
+""", unsafe_allow_html=True)
 st.title("USD/PHP Next-Day Direction Forecast")
 st.caption("Experimental model output. Not financial advice.")
 
