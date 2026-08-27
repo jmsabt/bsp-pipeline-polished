@@ -101,15 +101,16 @@ GitHub Actions runs ingestion and prediction daily.
 
 ### Historical analytics dashboard
 
-![Power BI dashboard](docs/screenshots/dashboard.png)
+![Power BI dashboard](docs/bsp_powerbi_1.png)
+![Power BI dashboard](docs/bsp_powerbi_2.png)
 
 ### Next-day forecast dashboard
 
-![Streamlit dashboard](docs/screenshots/streamlit_dashboard.png)
+![Streamlit dashboard](docs/bsp_streamlit.png)
 
 ### Scheduled pipeline run
 
-![GitHub Actions run](docs/screenshots/github_actions_run.png)
+![GitHub Actions run](docs/bsp_github_action.png)
 
 ---
 
@@ -242,10 +243,9 @@ The dashboard and this README both label the forecast as experimental. It is not
 
 ---
 
-## 🔗 Live Dashboards
+## 🔗 Live Dashboard
 
-- Power BI (historical analytics): [Add your published Power BI link here]
-- Streamlit (next-day forecast): [Add your Streamlit Cloud app URL here]
+- Streamlit (next-day forecast): https://bsp-fx-forecast.streamlit.app/
 
 ---
 
