@@ -17,7 +17,7 @@ if not SUPABASE_URL or not SUPABASE_KEY:
 
 client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-st.set_page_config(page_title="USD/PHP Direction Forecast", layout="centered")
+st.set_page_config(page_title="USD/PHP Direction Forecast", layout="wide")
 st.markdown("""
     <style>
     .stMetric {
@@ -38,6 +38,11 @@ st.markdown("""
     }
     hr {
         border-color: #2A2E37;
+    }
+
+    .block-container {
+    max-width: 1100px;
+    margin: 0 auto;
     }
 
     @media (max-width: 640px) {
@@ -103,11 +108,10 @@ if predictions_df.empty:
 
 latest_prediction = predictions_df.iloc[0]
 
-col1, col2 = st.columns(2)
+col1, col2, col3 = st.columns(3)
 
 with col1:
     direction = latest_prediction["predicted_direction"]
-    arrow = "up" if direction == "UP" else "down"
     st.metric(
         label=f"Prediction for {latest_prediction['rate_date'].date()}",
         value=direction,
@@ -119,48 +123,45 @@ with col2:
         value=f"{latest_prediction['confidence'] * 100:.1f}%",
     )
 
-st.divider()
-
-st.subheader("USD/PHP Rate, Last 30 Days")
-st.line_chart(rates_df.set_index("rate_date")["exchange_rate"])
-
-st.divider()
-
-st.subheader("Recent Predictions vs Actuals")
-
-history_df = predictions_df.copy()
-history_df["rate_date"] = history_df["rate_date"].dt.date
-history_df["correct"] = history_df.apply(
-    lambda row: "Yes" if row["actual_direction"] == row["predicted_direction"]
-    else ("Pending" if pd.isna(row["actual_direction"]) else "No"),
-    axis=1,
-)
-history_df = history_df.rename(columns={
-    "rate_date": "Date",
-    "predicted_direction": "Predicted",
-    "actual_direction": "Actual",
-    "confidence": "Confidence",
-    "correct": "Correct",
-})
-history_df["Confidence"] = (history_df["Confidence"] * 100).round(1).astype(str) + "%"
-
-st.dataframe(
-    history_df[["Date", "Predicted", "Actual", "Confidence", "Correct"]].head(7),
-    use_container_width=True,
-    hide_index=True,
-)
+with col3:
+    resolved = predictions_df[predictions_df["actual_direction"].notna()]
+    if len(resolved) > 0:
+        correct_count = (resolved["predicted_direction"] == resolved["actual_direction"]).sum()
+        total_count = len(resolved)
+        accuracy = correct_count / total_count * 100
+        st.metric(label="Rolling Accuracy", value=f"{accuracy:.1f}%", help=f"Based on {total_count} resolved predictions")
+    else:
+        st.metric(label="Rolling Accuracy", value="N/A")
 
 st.divider()
 
-st.subheader("Rolling Accuracy, Last 30 Days")
+chart_col, table_col = st.columns([2, 1])
 
-resolved = predictions_df[predictions_df["actual_direction"].notna()]
-if len(resolved) > 0:
-    correct_count = (resolved["predicted_direction"] == resolved["actual_direction"]).sum()
-    total_count = len(resolved)
-    accuracy = correct_count / total_count * 100
-    st.metric(label="Rolling Accuracy", value=f"{accuracy:.1f}%", help=f"Based on {total_count} resolved predictions")
-else:
-    st.info("Not enough resolved predictions yet to calculate accuracy.")
+with chart_col:
+    st.subheader("USD/PHP Rate, Last 30 Days")
+    st.line_chart(rates_df.set_index("rate_date")["exchange_rate"])
+
+with table_col:
+    st.subheader("Recent Predictions")
+    history_df = predictions_df.copy()
+    history_df["rate_date"] = history_df["rate_date"].dt.date
+    history_df["correct"] = history_df.apply(
+        lambda row: "Yes" if row["actual_direction"] == row["predicted_direction"]
+        else ("Pending" if pd.isna(row["actual_direction"]) else "No"),
+        axis=1,
+    )
+    history_df = history_df.rename(columns={
+        "rate_date": "Date",
+        "predicted_direction": "Pred.",
+        "actual_direction": "Actual",
+        "confidence": "Conf.",
+        "correct": "Correct",
+    })
+    history_df["Conf."] = (history_df["Conf."] * 100).round(1).astype(str) + "%"
+    st.dataframe(
+        history_df[["Date", "Pred.", "Actual", "Conf.", "Correct"]].head(7),
+        use_container_width=True,
+        hide_index=True,
+    )
 
 st.caption("This model is experimental and intended for demonstration purposes only. It should not be used as the sole basis for financial decisions.")
