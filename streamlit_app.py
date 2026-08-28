@@ -17,7 +17,7 @@ if not SUPABASE_URL or not SUPABASE_KEY:
 
 client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-st.set_page_config(page_title="USD/PHP Direction Forecast", layout="wide")
+st.set_page_config(page_title="EUR/PHP Direction Forecast", layout="wide")
 st.markdown("""
     <style>
     .stMetric {
@@ -63,7 +63,7 @@ st.markdown("""
     }
     </style>
 """, unsafe_allow_html=True)
-st.title("USD/PHP Next-Day Direction Forecast")
+st.title("EUR/PHP Next-Day Direction Forecast")
 st.caption("Experimental model output. Not financial advice.")
 
 
@@ -138,7 +138,7 @@ st.divider()
 chart_col, table_col = st.columns([2, 1])
 
 with chart_col:
-    st.subheader("USD/PHP Rate, Last 30 Days")
+    st.subheader("EUR/PHP Rate, Last 30 Days")
     st.line_chart(rates_df.set_index("rate_date")["exchange_rate"])
 
 with table_col:
